@@ -1,10 +1,11 @@
-import { Page, Locator, expect } from '@playwright/test';
-import { BasePage } from '../pages/BasePage';
+import { Page, Locator } from '@playwright/test';
+import { BasePage } from './basePage';
+import { endpoints } from '../constants/endpoints';
 
 export class SearchPage extends BasePage {
-    readonly searchInput: Locator;
-    readonly searchButton: Locator;
-    readonly searchResults: Locator;
+    public searchInput: Locator;
+    public searchButton: Locator;
+    public searchResults: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -14,7 +15,7 @@ export class SearchPage extends BasePage {
     }
 
     async openSearchPage() {
-        await this.goto('/search');
+        await this.goto(endpoints.searchPage);
     }
 
     async search(query: string) {
@@ -22,16 +23,12 @@ export class SearchPage extends BasePage {
         await this.clickElement(this.searchButton);
     }
 
-    async getSearchResults(): Promise<string[]> {
-        return await this.getTexts(this.searchResults);
+    async getSearchResults() {
+        return await this.getText(this.searchResults);
     }
 
-    async verifySearchResults(topic: string) {
-        await this.search(topic);
-        const results = await this.getSearchResults();
-        
-        const found = results.some(result => result.includes(topic));
-        expect(found).toBeTruthy();
-    }
+    async searchAndGetResults(query: string) {
+        await this.search(query);
+        return await this.getSearchResults();
+    }    
 }
-

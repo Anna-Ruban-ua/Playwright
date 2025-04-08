@@ -1,24 +1,15 @@
-import { test as base } from '@playwright/test';
-import { LoginPage } from '../pages/LoginPage';
-import * as fs from 'fs';
-import * as path from 'path';
-
-const testDataPath = path.resolve(__dirname, '../testData.json');
-const testData = JSON.parse(fs.readFileSync(testDataPath, 'utf-8'));
+import { test as base, expect } from '@playwright/test';
+import { LoginPage } from '../pages/loginPage';
+import testData from '../constants/testData.json';
 
 export const test = base.extend<{
   loginPage: LoginPage;
-  validLoginData: { username: string; password: string };
+  validLoginData: typeof testData.validLoginData;
 }>({
   loginPage: async ({ page }, use) => {
-    const loginPage = new LoginPage(page);
-    await loginPage.goto('/login');
-    await use(loginPage);
+    await use(new LoginPage(page));
   },
-
-  validLoginData: async ({}, use) => {
-    await use(testData.validLoginData);
-  },
+  validLoginData: async ({}, use) => use(testData.validLoginData),
 });
 
-export { expect } from '@playwright/test';
+export { expect };

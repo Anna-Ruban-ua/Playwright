@@ -1,15 +1,14 @@
-import { test } from '../fixtures/loginFixture';
+import { test, expect } from '../fixtures/loginFixture';
 import { generateInvalidPassword } from '../utils/helpers';
-import * as fs from 'fs';
-import * as path from 'path';
-
-const testDataPath = path.resolve(__dirname, '../testData.json');
-const testData = JSON.parse(fs.readFileSync(testDataPath, 'utf-8'));
+import testData from '../constants/testData.json';
+import { errorTexts } from '../constants/errorTexts';
 
 test('User authentication with an invalid password', async ({ loginPage }) => {
     const validUsername = testData.validLoginData.username;
     const invalidPassword = generateInvalidPassword();
 
+    await loginPage.openLoginPage();
     await loginPage.login(validUsername, invalidPassword);
-    await loginPage.loginError();
+    await expect(await loginPage.getLoginError()).toContain(errorTexts.loginError);
+
 });
