@@ -1,11 +1,12 @@
-import { BasePage } from './BasePage';
-import { expect, Page, Locator } from '@playwright/test';
+import { BasePage } from './basePage';
+import { Page, Locator } from '@playwright/test';
+import { endpoints } from '../constants/endpoints';
 
 export class LoginPage extends BasePage {
-    private usernameInput: Locator;
-    private passwordInput: Locator;
-    private loginButton: Locator;
-    private errorMessage: Locator;
+    public usernameInput: Locator;
+    public passwordInput: Locator;
+    public loginButton: Locator;
+    public errorMessage: Locator;
 
     constructor(page: Page) {
         super(page);
@@ -15,14 +16,18 @@ export class LoginPage extends BasePage {
         this.errorMessage = page.locator('#flash_error');
     }
 
+    async openLoginPage () {
+        await this.goto(endpoints.login);
+    }
+
     async login(username: string, password: string) {
         await this.fillField(this.usernameInput, username);
         await this.fillField(this.passwordInput, password);
         await this.clickElement(this.loginButton);
     }
 
-    async loginError() {
-        await expect(this.errorMessage).toHaveText('Invalid user or password');
+    async getLoginError() {
+        return await this.getText(this.errorMessage);
     }
 
 }

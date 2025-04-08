@@ -1,22 +1,26 @@
 import { test as base } from '@playwright/test';
+import { TopicsPage } from '../pages/topicsPage';
+import { endpoints } from '../constants/endpoints';
 
 export const test = base.extend<{ randomTopics: string[] }>({
-    randomTopics: async ({ page }, use) => {
-        const endpoints = [
-            '/projects/redmine/issues',
-            '/projects/redmine/news'
-        ];
+  randomTopics: async ({ page }, use) => {
+    const topicsPage = new TopicsPage(page);
 
-        let allTopics: string[] = [];
+    const topicEndpoints = [endpoints.issues, endpoints.news];
+    let allTopics: string[] = [];
 
-        for (const endpoint of endpoints) {
-            await page.goto(endpoint);
-            
-            const topics = await page.locator('table.issues td.subject a, article.news-article h3 a').allInnerTexts();
-            allTopics.push(...topics);
-        }
+    for (const endpoint of topicEndpoints) {
+      await page.goto(endpoint);
 
-        const randomTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 3);
-        await use(randomTopics);
+      const links = endpoint === endpoints.issues
+        ? topicsPage.issueLinks
+        : topicsPage.newsLinks;
+
+      const texts = await links.allInnerTexts();
+      allTopics.push(...texts);
     }
+
+    const randomTopics = allTopics.sort(() => 0.5 - Math.random()).slice(0, 3);
+    await use(randomTopics);
+  }
 });
